@@ -1527,7 +1527,15 @@ func (s *StateStore) upsertJobImpl(index uint64, job *structs.Job, keepVersion b
 			return fmt.Errorf("job lookup failed: %v", err)
 		}
 		if updated != nil {
-			job = updated.(*structs.Job)
+
+			uj := updated.(*structs.Job)
+
+			// HACK: Many tests assume that jobs passed to UpsertJob
+			// is updated the proper Index and Status fields so updating here
+			job.Status = uj.Status
+			job.StatusDescription = uj.StatusDescription
+
+			job = uj
 		}
 	}
 
